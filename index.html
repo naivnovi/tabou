@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabou — jeu de vocabulaire français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2a1a6e;--ink:#ffffff;--dark:#2a1a6e;--mute:#6b6490;--line:rgba(255,255,255,.18);--card:#ffffff;--yellow:#ffd23f;--ok:#22c58b;--bad:#ff4d6d;--pop:#8b5cf6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);background-image:radial-gradient(circle at 15% 0%,#5b34d6 0,transparent 45%),radial-gradient(circle at 100% 100%,#c0357f 0,transparent 40%);background-attachment:fixed;color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-weight:600;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.serif{font-family:Fredoka,Nunito,sans-serif}
+#app{max-width:560px;margin:0 auto;padding:28px 20px 60px;min-height:100vh}
+h1{font-family:Fredoka,Nunito,sans-serif;font-weight:700;font-size:72px;letter-spacing:.01em;line-height:1;color:var(--yellow);text-shadow:0 5px 0 #c0357f}
+.sub{color:rgba(255,255,255,.78);margin-top:12px;font-size:15px}
+.label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);font-weight:800;margin:28px 0 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chip{flex:1;min-width:0;border:none;background:rgba(255,255,255,.14);color:#fff;padding:14px 10px;font:inherit;font-weight:800;cursor:pointer;text-align:center;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.25);transition:transform .08s}
+.chip:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.chip b{display:block;font-family:Fredoka,Nunito,sans-serif;font-size:30px;font-weight:600;line-height:1.1}
+.chip small{color:rgba(255,255,255,.7);font-size:12px;font-weight:700}
+.chip.on{background:var(--yellow);color:var(--dark);box-shadow:0 4px 0 #c99a00}
+.chip.on small{color:#5b4a00}
+.chip.sm{padding:10px 18px;flex:0 0 auto;font-size:14px;border-radius:999px}
+input[type=text]{width:100%;padding:14px 18px;border:3px solid transparent;background:#fff;color:var(--dark);font:inherit;font-weight:700;border-radius:999px;outline:none}
+input[type=text]:focus{border-color:var(--yellow)}
+.btn{display:block;width:100%;border:none;background:var(--ok);color:#fff;padding:18px;font:inherit;font-family:Fredoka,Nunito,sans-serif;font-size:22px;font-weight:600;letter-spacing:.03em;cursor:pointer;border-radius:999px;margin-top:14px;box-shadow:0 6px 0 #118a5f;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #118a5f}
+.btn.ghost{background:rgba(255,255,255,.16);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.25);font-size:18px}
+.btn.ghost:active{box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.top{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.12);border-radius:26px;padding:12px 20px}
+.team{font-family:Fredoka,Nunito,sans-serif;font-size:26px;font-weight:600}
+.score{color:rgba(255,255,255,.8);font-size:14px}
+.timer{font-family:Fredoka,Nunito,sans-serif;font-size:46px;font-weight:700;line-height:1;background:var(--yellow);color:var(--dark);min-width:76px;text-align:center;padding:6px 14px;border-radius:999px;box-shadow:0 4px 0 #c99a00}
+.timer.low{background:var(--bad);color:#fff;box-shadow:0 4px 0 #b02444}
+.card{background:var(--card);color:var(--dark);margin-top:18px;padding:28px 22px;text-align:center;border-radius:32px;box-shadow:0 8px 0 rgba(0,0,0,.25)}
+.target{font-family:Fredoka,Nunito,sans-serif;font-size:50px;font-weight:700;line-height:1.1;word-break:break-word;color:var(--pop)}
+.trs{display:flex;gap:8px 14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.t{font-size:14px;color:rgba(255,255,255,.75)}
+.card .t,.study .t{color:var(--mute)}
+.t.ar{font-size:17px}
+.rule{height:4px;border-radius:4px;background:repeating-linear-gradient(90deg,#e6e0fb 0 10px,transparent 10px 18px);margin:22px auto;width:70%}
+.forb{padding:7px 0;color:var(--bad)}
+.forb .w{font-family:Fredoka,Nunito,sans-serif;font-weight:600;font-size:22px;letter-spacing:.04em;text-transform:uppercase}
+.forb .trs{margin-top:0}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px}
+.actions button{padding:16px 6px;border:none;background:#fff;font:inherit;font-family:Fredoka,Nunito,sans-serif;font-size:18px;font-weight:600;cursor:pointer;border-radius:999px;color:var(--dark);box-shadow:0 5px 0 #b9b2d8;transition:transform .08s}
+.actions button:active{transform:translateY(4px);box-shadow:0 1px 0 #b9b2d8}
+.actions .ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 #118a5f}
+.actions .ok:active{box-shadow:0 1px 0 #118a5f}
+.actions .no{background:var(--bad);color:#fff;box-shadow:0 5px 0 #b02444}
+.actions .no:active{box-shadow:0 1px 0 #b02444}
+.langbar{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.center{text-align:center}
+.big{font-family:Fredoka,Nunito,sans-serif;font-weight:600;font-size:42px;line-height:1.1}
+.log{margin-top:6px}
+.log div.i{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;margin-bottom:8px;background:rgba(255,255,255,.12);border-radius:20px;align-items:center}
+.log .m{font-size:14px}
+.pill{font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.2)}
+.pill.ok{background:var(--ok);color:#fff}
+.pill.no{background:var(--bad);color:#fff}
+.scoreboard{display:flex;justify-content:space-around;margin:24px 0}
+.scoreboard .n{font-family:Fredoka,Nunito,sans-serif;font-weight:700;font-size:84px;line-height:1;color:var(--yellow);text-shadow:0 4px 0 #c0357f}
+.back{background:rgba(255,255,255,.14);border:none;color:#fff;font:inherit;font-weight:800;cursor:pointer;margin-bottom:16px;padding:8px 16px;border-radius:999px}
+.study{background:var(--card);color:var(--dark);padding:18px 20px;margin-top:12px;border-radius:26px;box-shadow:0 5px 0 rgba(0,0,0,.2)}
+.study .target{font-size:32px}
+.study .fl{margin-top:12px;padding-top:12px;border-top:3px dotted #e6e0fb;font-size:14px}
+.study .fl span{display:inline-block;margin:2px 10px 2px 0}
+.study .fl .t{display:block;margin-top:-2px}
+.footer{margin-top:40px;color:rgba(255,255,255,.6);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* Dictionary: French word -> "English|Русский|العربية" */
+const D = {
+"pomme":"apple|яблоко|تفاحة","fruit":"fruit|фрукт|فاكهة","rouge":"red|красный|أحمر","arbre":"tree|дерево|شجرة","manger":"to eat|есть|يأكل","jus":"juice|сок|عصير",
+"chat":"cat|кошка|قطة","animal":"animal|животное|حيوان","miauler":"to meow|мяукать|يموء","souris":"mouse|мышь|فأر","domestique":"domestic|домашний|أليف","poils":"fur|шерсть|فرو",
+"boulangerie":"bakery|пекарня|مخبز","pain":"bread|хлеб|خبز","croissant":"croissant|круассан|كرواسان","baguette":"baguette|багет|باغيت","acheter":"to buy|покупать|يشتري","four":"oven|печь|فرن",
+"école":"school|школа|مدرسة","élève":"pupil|ученик|تلميذ","professeur":"teacher|учитель|أستاذ","classe":"class|класс|صف","apprendre":"to learn|учить|يتعلم","cahier":"notebook|тетрадь|دفتر",
+"maison":"house|дом|منزل","habiter":"to live (somewhere)|жить|يسكن","toit":"roof|крыша|سقف","porte":"door|дверь|باب","chambre":"bedroom|комната|غرفة","famille":"family|семья|عائلة",
+"voiture":"car|машина|سيارة","conduire":"to drive|водить|يقود","roue":"wheel|колесо|عجلة","route":"road|дорога|طريق","garage":"garage|гараж|مرآب","moteur":"engine|двигатель|محرك",
+"plage":"beach|пляж|شاطئ","mer":"sea|море|بحر","sable":"sand|песок|رمل","été":"summer|лето|صيف","soleil":"sun|солнце|شمس","maillot":"swimsuit|купальник|ملابس السباحة",
+"médecin":"doctor|врач|طبيب","malade":"sick|больной|مريض","hôpital":"hospital|больница|مستشفى","soigner":"to treat|лечить|يعالج","médicament":"medicine|лекарство|دواء","santé":"health|здоровье|صحة",
+"café":"coffee|кофе|قهوة","boire":"to drink|пить|يشرب","noir":"black|чёрный|أسود","tasse":"cup|чашка|فنجان","matin":"morning|утро|صباح","lait":"milk|молоко|حليب",
+"train":"train|поезд|قطار","gare":"station|вокзал|محطة","voyage":"trip|поездка|رحلة","billet":"ticket|билет|تذكرة","rail":"rail|рельс|سكة حديدية","wagon":"carriage|вагон|عربة",
+"anniversaire":"birthday|день рождения|عيد ميلاد","gâteau":"cake|торт|كعكة","bougie":"candle|свеча|شمعة","cadeau":"gift|подарок|هدية","fête":"party|праздник|حفلة","âge":"age|возраст|عمر",
+"pluie":"rain|дождь|مطر","parapluie":"umbrella|зонт|مظلة","eau":"water|вода|ماء","nuage":"cloud|облако|سحابة","tomber":"to fall|падать|يسقط","mouillé":"wet|мокрый|مبلل",
+"téléphone":"phone|телефон|هاتف","appeler":"to call|звонить|يتصل","portable":"mobile phone|мобильный|هاتف محمول","numéro":"number|номер|رقم","sonner":"to ring|звонить (о звонке)|يرن","message":"message|сообщение|رسالة",
+"cuisine":"kitchen|кухня|مطبخ","cuisiner":"to cook|готовить|يطبخ","frigo":"fridge|холодильник|ثلاجة","repas":"meal|еда, приём пищи|وجبة",
+"hôtel":"hotel|отель|فندق","dormir":"to sleep|спать|ينام","réservation":"booking|бронирование|حجز","nuit":"night|ночь|ليلة","vacances":"holidays|отпуск, каникулы|عطلة",
+"fromage":"cheese|сыр|جبن","vache":"cow|корова|بقرة","France":"France|Франция|فرنسا","odeur":"smell|запах|رائحة",
+"vélo":"bike|велосипед|دراجة","pédaler":"to pedal|крутить педали|يدوّس","deux":"two|два|اثنان","casque":"helmet|шлем|خوذة","rouler":"to ride|ехать|يسير",
+"football":"football|футбол|كرة القدم","ballon":"ball|мяч|كرة","but":"goal|гол, цель|هدف","match":"match|матч|مباراة","jouer":"to play|играть|يلعب","équipe":"team|команда|فريق",
+"restaurant":"restaurant|ресторан|مطعم","serveur":"waiter|официант|نادل","menu":"menu|меню|قائمة الطعام","table":"table|стол|طاولة",
+"valise":"suitcase|чемодан|حقيبة سفر","bagage":"luggage|багаж|أمتعة","vêtements":"clothes|одежда|ملابس","aéroport":"airport|аэропорт|مطار","fermer":"to close|закрывать|يغلق",
+
+"embouteillage":"traffic jam|пробка|ازدحام مروري","bloqué":"stuck|застрявший|عالق","retard":"delay|опоздание|تأخير","circulation":"traffic|движение|حركة المرور",
+"rendez-vous":"appointment|встреча, приём|موعد","heure":"hour, time|час|ساعة","date":"date|дата|تاريخ","fixer":"to set|назначать|يحدد","rencontrer":"to meet|встречать|يقابل",
+"déménager":"to move house|переезжать|ينتقل إلى منزل جديد","cartons":"boxes|коробки|صناديق كرتونية","nouveau":"new|новый|جديد","appartement":"flat|квартира|شقة","quitter":"to leave|покидать|يغادر",
+"grève":"strike|забастовка|إضراب","travail":"work|работа|عمل","syndicat":"trade union|профсоюз|نقابة","manifestation":"demonstration|демонстрация|مظاهرة","transports":"transport|транспорт|مواصلات","arrêter":"to stop|останавливать|يوقف",
+"économiser":"to save|экономить|يوفّر","argent":"money|деньги|مال","dépenser":"to spend|тратить|ينفق","banque":"bank|банк|بنك","épargne":"savings|сбережения|مدخرات","prix":"price|цена|سعر",
+"entretien":"job interview|собеседование|مقابلة عمل","emploi":"job|работа, должность|وظيفة","CV":"CV|резюме|سيرة ذاتية","patron":"boss|начальник|رئيس","poste":"position|должность|منصب","embauche":"hiring|найм|توظيف",
+"ordonnance":"prescription|рецепт (врача)|وصفة طبية","pharmacie":"pharmacy|аптека|صيدلية","papier":"paper|бумага|ورقة","prescrire":"to prescribe|назначать, выписывать|يصف",
+"chômage":"unemployment|безработица|بطالة","sans":"without|без|بدون","allocation":"benefit|пособие|إعانة","perdre":"to lose|терять|يفقد",
+"météo":"weather forecast|прогноз погоды|الأرصاد الجوية","temps":"time, weather|время, погода|وقت، طقس","prévision":"forecast|прогноз|توقع","température":"temperature|температура|درجة الحرارة",
+"voisin":"neighbour|сосед|جار","immeuble":"apartment building|многоэтажный дом|عمارة","bruit":"noise|шум|ضجيج","à côté":"next door|рядом|بجانب",
+"impôts":"taxes|налоги|ضرائب","payer":"to pay|платить|يدفع","État":"the State|государство|الدولة","déclaration":"tax return, declaration|декларация|إقرار","salaire":"salary|зарплата|راتب",
+"mariage":"wedding|свадьба|زواج","mari":"husband|муж|زوج","robe":"dress|платье|فستان","église":"church|церковь|كنيسة","épouser":"to marry|жениться, выходить замуж|يتزوج",
+"se disputer":"to argue|ссориться|يتشاجر","crier":"to shout|кричать|يصرخ","colère":"anger|гнев|غضب","désaccord":"disagreement|разногласие|خلاف","ami":"friend|друг|صديق","fâché":"angry, upset|обиженный, злой|غاضب",
+"ascenseur":"lift|лифт|مصعد","étage":"floor|этаж|طابق","monter":"to go up|подниматься|يصعد","bouton":"button|кнопка|زر","escalier":"stairs|лестница|درج",
+"réunion":"meeting|совещание|اجتماع","bureau":"office|офис|مكتب","collègues":"colleagues|коллеги|زملاء","discuter":"to discuss|обсуждать|يناقش",
+"cambriolage":"burglary|кража со взломом|سطو","voleur":"thief|вор|لص","police":"police|полиция|شرطة","voler":"to steal|красть|يسرق",
+"bénévole":"volunteer|волонтёр|متطوع","aider":"to help|помогать|يساعد","association":"association|ассоциация|جمعية","gratuit":"free|бесплатный|مجاني",
+"horaires":"timetable|расписание|مواعيد","ouverture":"opening|открытие|افتتاح","planning":"schedule|график|جدول",
+"soldes":"sales|распродажа|تخفيضات","magasin":"shop|магазин|متجر","réduction":"discount|скидка|تخفيض","hiver":"winter|зима|شتاء",
+"colocation":"flatshare|совместная аренда|سكن مشترك","partager":"to share|делить|يتشارك","loyer":"rent|арендная плата|إيجار",
+
+"rancune":"grudge|обида, злопамятность|حقد","pardonner":"to forgive|прощать|يسامح","en vouloir":"to hold a grudge against|держать обиду|يحمل ضغينة","garder":"to keep|хранить|يحتفظ","oublier":"to forget|забывать|ينسى",
+"éphémère":"ephemeral|мимолётный|عابر","court":"short|короткий|قصير","durée":"duration|продолжительность|مدة","passager":"fleeting|преходящий|زائل","durer":"to last|длиться|يدوم",
+"nostalgie":"nostalgia|ностальгия|حنين","passé":"past|прошлое|ماضٍ","regret":"regret|сожаление|ندم","souvenir":"memory|воспоминание|ذكرى","manquer":"to miss|скучать, не хватать|يفتقد","enfance":"childhood|детство|طفولة",
+"mondialisation":"globalisation|глобализация|عولمة","monde":"world|мир|عالم","économie":"economy|экономика|اقتصاد","échanges":"exchanges|обмен|تبادل","pays":"country|страна|بلد","global":"global|глобальный|عالمي",
+"surmenage":"burnout, overwork|переутомление|إرهاق","fatigue":"tiredness|усталость|تعب","stress":"stress|стресс|توتر","épuisement":"exhaustion|истощение|استنزاف","repos":"rest|отдых|راحة",
+"écologie":"ecology|экология|إيكولوجيا","environnement":"environment|окружающая среда|بيئة","nature":"nature|природа|طبيعة","planète":"planet|планета|كوكب","pollution":"pollution|загрязнение|تلوث","protéger":"to protect|защищать|يحمي",
+"dépaysement":"change of scenery|смена обстановки|تغيير المكان","étranger":"foreign|иностранный|أجنبي","habitudes":"habits|привычки|عادات","ailleurs":"elsewhere|в другом месте|في مكان آخر",
+"mensonge":"lie|ложь|كذبة","vérité":"truth|правда|حقيقة","dire":"to say|говорить|يقول","faux":"false|ложный|خاطئ","tromper":"to deceive|обманывать|يخدع","menteur":"liar|лжец|كاذب",
+"polémique":"controversy|полемика|جدل","débat":"debate|дебаты|نقاش","discussion":"discussion|дискуссия|حوار","médias":"media|СМИ|وسائل الإعلام","critique":"criticism|критика|نقد","scandale":"scandal|скандал|فضيحة",
+"s'épanouir":"to flourish|раскрываться, расцветать|يزدهر","heureux":"happy|счастливый|سعيد","développer":"to develop|развивать|يطوّر","fleur":"flower|цветок|زهرة","bien":"well|хорошо|جيدًا","personnalité":"personality|личность|شخصية",
+"malentendu":"misunderstanding|недоразумение|سوء فهم","comprendre":"to understand|понимать|يفهم","erreur":"mistake|ошибка|خطأ","confusion":"confusion|путаница|لبس","entendre":"to hear|слышать|يسمع",
+"licenciement":"dismissal|увольнение|فصل من العمل","entreprise":"company|компания|شركة","contrat":"contract|контракт|عقد",
+"persévérance":"perseverance|упорство|مثابرة","continuer":"to continue|продолжать|يستمر","effort":"effort|усилие|جهد","abandonner":"to give up|сдаваться|يستسلم","courage":"courage|смелость|شجاعة","obstacle":"obstacle|препятствие|عقبة",
+"engagement":"commitment|обязательство|التزام","promesse":"promise|обещание|وعد","responsabilité":"responsibility|ответственность|مسؤولية","parole":"word (spoken)|слово|كلمة","militant":"activist|активист|ناشط",
+"déception":"disappointment|разочарование|خيبة أمل","attente":"expectation|ожидание|توقع","triste":"sad|грустный|حزين","espoir":"hope|надежда|أمل","surprise":"surprise|сюрприз|مفاجأة","sentiment":"feeling|чувство|شعور",
+"patrimoine":"heritage|наследие|تراث","culture":"culture|культура|ثقافة","histoire":"history, story|история|تاريخ","monument":"monument|памятник|نصب تذكاري","héritage":"inheritance|наследство|ميراث",
+"débrouillard":"resourceful|находчивый|مدبّر","malin":"clever|хитрый, ловкий|ماكر","solution":"solution|решение|حل","problème":"problem|проблема|مشكلة","astucieux":"smart, ingenious|сообразительный|بارع","autonome":"independent|самостоятельный|مستقل",
+"harcèlement":"harassment|травля|تحرش","victime":"victim|жертва|ضحية","insulter":"to insult|оскорблять|يهين","menace":"threat|угроза|تهديد",
+"rentabilité":"profitability|рентабельность|ربحية","bénéfice":"profit|прибыль|ربح","investir":"to invest|инвестировать|يستثمر","coût":"cost|стоимость|تكلفة",
+"sensibilisation":"awareness raising|повышение осведомлённости|توعية","campagne":"campaign|кампания|حملة","informer":"to inform|информировать|يُعلم","public":"the public|публика, аудитория|جمهور","prévention":"prevention|профилактика|وقاية","conscience":"awareness|осознание|وعي"
+};
+
+/* Cards: [target, "forbidden1,forbidden2,..."] */
+const CARDS = {
+A2:[
+["pomme","fruit,rouge,arbre,manger,jus"],["chat","animal,miauler,souris,domestique,poils"],["boulangerie","pain,croissant,baguette,acheter,four"],
+["école","élève,professeur,classe,apprendre,cahier"],["maison","habiter,toit,porte,chambre,famille"],["voiture","conduire,roue,route,garage,moteur"],
+["plage","mer,sable,été,soleil,maillot"],["médecin","malade,hôpital,soigner,médicament,santé"],["café","boire,noir,tasse,matin,lait"],
+["train","gare,voyage,billet,rail,wagon"],["anniversaire","gâteau,bougie,cadeau,fête,âge"],["pluie","parapluie,eau,nuage,tomber,mouillé"],
+["téléphone","appeler,portable,numéro,sonner,message"],["cuisine","cuisiner,frigo,repas,four,manger"],["hôtel","chambre,dormir,réservation,nuit,vacances"],
+["fromage","lait,vache,France,odeur,pain"],["vélo","roue,pédaler,deux,casque,rouler"],["football","ballon,but,match,jouer,équipe"],
+["restaurant","manger,serveur,menu,table,repas"],["valise","voyage,bagage,vêtements,aéroport,fermer"]
+],
+B1:[
+["embouteillage","voiture,route,bloqué,retard,circulation"],["rendez-vous","heure,médecin,date,fixer,rencontrer"],["déménager","maison,cartons,nouveau,appartement,quitter"],
+["grève","travail,syndicat,manifestation,transports,arrêter"],["économiser","argent,dépenser,banque,épargne,prix"],["entretien","emploi,CV,patron,poste,embauche"],
+["ordonnance","médecin,pharmacie,médicament,papier,prescrire"],["chômage","travail,emploi,sans,allocation,perdre"],["météo","temps,prévision,pluie,soleil,température"],
+["voisin","maison,immeuble,bruit,habiter,à côté"],["impôts","payer,État,déclaration,argent,salaire"],["mariage","mari,robe,église,fête,épouser"],
+["se disputer","crier,colère,désaccord,ami,fâché"],["ascenseur","étage,monter,bouton,immeuble,escalier"],["réunion","bureau,collègues,discuter,heure,patron"],
+["cambriolage","voleur,maison,police,voler,porte"],["bénévole","aider,association,gratuit,travail,temps"],["horaires","heure,train,ouverture,travail,planning"],
+["soldes","magasin,prix,réduction,hiver,acheter"],["colocation","appartement,partager,loyer,ami,chambre"]
+],
+B2:[
+["rancune","pardonner,en vouloir,colère,garder,oublier"],["éphémère","court,durée,temps,passager,durer"],["nostalgie","passé,regret,souvenir,manquer,enfance"],
+["mondialisation","monde,économie,échanges,pays,global"],["surmenage","travail,fatigue,stress,épuisement,repos"],["écologie","environnement,nature,planète,pollution,protéger"],
+["dépaysement","voyage,étranger,nouveau,habitudes,ailleurs"],["mensonge","vérité,dire,faux,tromper,menteur"],["polémique","débat,discussion,médias,critique,scandale"],
+["s'épanouir","heureux,développer,fleur,bien,personnalité"],["malentendu","comprendre,erreur,confusion,dire,entendre"],["licenciement","patron,travail,entreprise,perdre,contrat"],
+["persévérance","continuer,effort,abandonner,courage,obstacle"],["engagement","promesse,responsabilité,parole,militant,contrat"],["déception","attente,triste,espoir,surprise,sentiment"],
+["patrimoine","culture,histoire,monument,héritage,protéger"],["débrouillard","malin,solution,problème,astucieux,autonome"],["harcèlement","école,travail,victime,insulter,menace"],
+["rentabilité","argent,entreprise,bénéfice,investir,coût"],["sensibilisation","campagne,informer,public,prévention,conscience"]
+]};
+/*END DATA*/
+
+const LV={A2:'Facile',B1:'Moyen',B2:'Difficile'};
+const S={screen:'home',level:'A2',time:60,rounds:3,langs:{en:true,ru:false,ar:false},
+  teams:[{name:'Équipe 1',score:0},{name:'Équipe 2',score:0}],turn:0,deck:[],cur:null,log:[],left:0,timer:null,endAt:0};
+try{const s=JSON.parse(localStorage.getItem('tabou')||'null');if(s){S.langs=s.langs||S.langs;S.level=s.level||S.level;S.time=s.time||S.time;S.rounds=s.rounds||S.rounds}}catch(e){}
+function save(){try{localStorage.setItem('tabou',JSON.stringify({langs:S.langs,level:S.level,time:S.time,rounds:S.rounds}))}catch(e){}}
+const $=s=>document.querySelector(s), app=$('#app');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+function trHtml(w){
+  const t=(D[w]||'||').split('|');let h='';
+  if(S.langs.en&&t[0])h+=`<span class="t" lang="en">${esc(t[0])}</span>`;
+  if(S.langs.ru&&t[1])h+=`<span class="t" lang="ru">${esc(t[1])}</span>`;
+  if(S.langs.ar&&t[2])h+=`<span class="t ar" lang="ar" dir="rtl">${esc(t[2])}</span>`;
+  return h?`<div class="trs">${h}</div>`:'';
+}
+function langBar(){
+  return `<div class="langbar">`+[['en','English'],['ru','Русский'],['ar','العربية']].map(([k,n])=>
+    `<button class="chip sm ${S.langs[k]?'on':''}" data-lang="${k}">${n}</button>`).join('')+`</div>`;
+}
+function bindLang(cb){
+  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{S.langs[b.dataset.lang]=!S.langs[b.dataset.lang];save();cb()});
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function nextCard(){
+  if(!S.deck.length)S.deck=shuffle(CARDS[S.level]);
+  const c=S.deck.pop();S.cur={w:c[0],f:c[1].split(',')};
+}
+
+/* ---------- Home ---------- */
+function home(){
+  S.screen='home';
+  app.innerHTML=`
+  <div style="padding-top:24px"><h1>Tabou</h1>
+  <p class="sub">Faites deviner le mot sans dire les mots interdits. Pour apprendre le français en jouant.</p></div>
+  <div class="label">Niveau</div>
+  <div class="row">${Object.keys(LV).map(l=>`<button class="chip ${S.level===l?'on':''}" data-level="${l}"><b>${l}</b><small>${LV[l]}</small></button>`).join('')}</div>
+  <div class="label">Traductions</div>
+  ${langBar().replace('langbar"','langbar" style="justify-content:flex-start"')}
+  <div class="label">Équipes</div>
+  <div class="row"><input type="text" id="t1" value="${esc(S.teams[0].name)}" aria-label="Équipe 1"><input type="text" id="t2" value="${esc(S.teams[1].name)}" aria-label="Équipe 2"></div>
+  <div class="label">Durée d'un tour</div>
+  <div class="row">${[30,60,90].map(t=>`<button class="chip sm ${S.time===t?'on':''}" data-time="${t}">${t} s</button>`).join('')}</div>
+  <div class="label">Tours par équipe</div>
+  <div class="row">${[2,3,5].map(t=>`<button class="chip sm ${S.rounds===t?'on':''}" data-rounds="${t}">${t}</button>`).join('')}</div>
+  <button class="btn" id="go" style="margin-top:34px">Jouer</button>
+  <button class="btn ghost" id="study">Réviser le vocabulaire</button>
+  <p class="footer">${CARDS.A2.length+CARDS.B1.length+CARDS.B2.length} cartes · A2 · B1 · B2</p>`;
+  document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();keep();home()});
+  document.querySelectorAll('[data-time]').forEach(b=>b.onclick=()=>{S.time=+b.dataset.time;save();keep();home()});
+  document.querySelectorAll('[data-rounds]').forEach(b=>b.onclick=()=>{S.rounds=+b.dataset.rounds;save();keep();home()});
+  bindLang(()=>{keep();home()});
+  $('#go').onclick=()=>{keep();S.teams.forEach(t=>t.score=0);S.turn=0;S.deck=[];ready()};
+  $('#study').onclick=()=>{keep();studyScreen()};
+}
+function keep(){const a=$('#t1'),b=$('#t2');if(a)S.teams[0].name=a.value.trim()||'Équipe 1';if(b)S.teams[1].name=b.value.trim()||'Équipe 2'}
+
+/* ---------- Ready ---------- */
+function ready(){
+  S.screen='ready';
+  const team=S.teams[S.turn%2], round=Math.floor(S.turn/2)+1;
+  app.innerHTML=`
+  <div class="top"><span class="score">Niveau ${S.level} · Tour ${round}/${S.rounds}</span><span class="score">${esc(S.teams[0].name)} ${S.teams[0].score} — ${S.teams[1].score} ${esc(S.teams[1].name)}</span></div>
+  <div class="center" style="margin-top:80px">
+    <div class="label" style="margin-top:0">C'est le tour de</div>
+    <div class="big">${esc(team.name)}</div>
+    <p class="sub" style="max-width:340px;margin:18px auto 0">Un joueur décrit le mot. Les autres devinent. Attention aux mots interdits !</p>
+  </div>
+  <button class="btn" id="start" style="margin-top:60px">Commencer · ${S.time} s</button>`;
+  $('#start').onclick=startTurn;
+}
+
+/* ---------- Play ---------- */
+function startTurn(){
+  S.screen='play';S.log=[];nextCard();
+  S.endAt=Date.now()+S.time*1000;
+  renderPlay();
+  clearInterval(S.timer);
+  S.timer=setInterval(tick,250);
+}
+function tick(){
+  const left=Math.max(0,Math.ceil((S.endAt-Date.now())/1000));
+  const el=$('#timer');if(el){el.textContent=left;el.classList.toggle('low',left<=10)}
+  if(left<=0)endTurn();
+}
+function renderPlay(){
+  const team=S.teams[S.turn%2], c=S.cur;
+  const left=Math.max(0,Math.ceil((S.endAt-Date.now())/1000));
+  app.innerHTML=`
+  <div class="top"><div><div class="team">${esc(team.name)}</div><div class="score">Score : <span id="sc">${team.score}</span></div></div><div class="timer ${left<=10?'low':''}" id="timer">${left}</div></div>
+  <div class="card">
+    <div class="target">${esc(c.w)}</div>${trHtml(c.w)}
+    <div class="rule"></div>
+    ${c.f.map(f=>`<div class="forb"><div class="w">${esc(f)}</div>${trHtml(f)}</div>`).join('')}
+  </div>
+  <div class="actions"><button class="no" id="bad">✕ Tabou</button><button id="skip">Passer</button><button class="ok" id="good">✓ Trouvé</button></div>
+  ${langBar()}`;
+  $('#good').onclick=()=>answer('ok');$('#bad').onclick=()=>answer('no');$('#skip').onclick=()=>answer('skip');
+  bindLang(renderPlay);
+}
+function answer(r){
+  const team=S.teams[S.turn%2];
+  S.log.push({w:S.cur.w,r});
+  if(r==='ok')team.score++;
+  if(r==='no')team.score--;
+  nextCard();renderPlay();
+}
+function endTurn(){
+  clearInterval(S.timer);S.screen='summary';
+  const team=S.teams[S.turn%2];
+  const pts=S.log.reduce((a,l)=>a+(l.r==='ok'?1:l.r==='no'?-1:0),0);
+  const lab={ok:'Trouvé',no:'Tabou',skip:'Passé'};
+  app.innerHTML=`
+  <div class="center" style="margin-top:30px"><div class="label" style="margin-top:0">Temps écoulé</div>
+  <div class="big">${esc(team.name)}</div>
+  <p class="sub">${pts>0?'+':''}${pts} point${Math.abs(pts)>1?'s':''} ce tour</p></div>
+  <div class="label">Mots de ce tour</div>
+  <div class="log">${S.log.length?S.log.map(l=>`<div class="i"><div><span class="serif" style="font-size:22px">${esc(l.w)}</span>${trHtml(l.w).replace('class="trs"','class="trs" style="justify-content:flex-start;margin-top:0"')}</div><span class="pill ${l.r}">${lab[l.r]}</span></div>`).join(''):'<div class="i"><span class="m">Aucun mot ce tour.</span></div>'}</div>
+  ${langBar()}
+  <button class="btn" id="next">Continuer</button>`;
+  bindLang(()=>{S.screen==='summary'&&endTurnRender()});
+  $('#next').onclick=()=>{S.turn++;if(S.turn>=S.rounds*2)finish();else ready()};
+}
+function endTurnRender(){ // re-render summary without restarting timers
+  const t=S.timer;endTurn();S.timer=t;
+}
+
+/* ---------- End ---------- */
+function finish(){
+  S.screen='end';
+  const [a,b]=S.teams;
+  const w=a.score===b.score?null:(a.score>b.score?a:b);
+  app.innerHTML=`
+  <div class="center" style="margin-top:60px"><div class="label" style="margin-top:0">Fin de la partie</div>
+  <div class="big">${w?'Bravo, '+esc(w.name)+' !':'Égalité !'}</div></div>
+  <div class="scoreboard"><div class="center"><div class="n">${a.score}</div><div class="sub">${esc(a.name)}</div></div><div class="center"><div class="n">${b.score}</div><div class="sub">${esc(b.name)}</div></div></div>
+  <button class="btn" id="again">Rejouer</button><button class="btn ghost" id="menu">Menu</button>`;
+  $('#again').onclick=()=>{S.teams.forEach(t=>t.score=0);S.turn=0;S.deck=[];ready()};
+  $('#menu').onclick=home;
+}
+
+/* ---------- Study ---------- */
+function studyScreen(){
+  S.screen='study';
+  app.innerHTML=`
+  <button class="back" id="b">← Retour</button>
+  <h1 style="font-size:48px">Réviser</h1>
+  <div class="row" style="margin-top:20px">${Object.keys(LV).map(l=>`<button class="chip sm ${S.level===l?'on':''}" data-level="${l}">${l}</button>`).join('')}</div>
+  ${langBar().replace('langbar"','langbar" style="justify-content:flex-start"')}
+  ${CARDS[S.level].map(c=>`<div class="study"><div class="target">${esc(c[0])}</div>${trHtml(c[0]).replace('class="trs"','class="trs" style="justify-content:flex-start"')}
+  <div class="fl">${c[1].split(',').map(f=>`<span><span style="color:var(--bad);text-transform:uppercase;font-size:13px;letter-spacing:.04em;font-weight:800">${esc(f)}</span>${trHtml(f).replace('class="trs"','class="trs" style="justify-content:flex-start;margin-top:0"')}</span>`).join('')}</div></div>`).join('')}`;
+  $('#b').onclick=home;
+  document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();studyScreen()});
+  bindLang(studyScreen);
+}
+home();
+</script>
+</body>
+</html>
